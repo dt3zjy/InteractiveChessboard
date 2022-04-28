@@ -172,23 +172,23 @@ void checkKnight(struct Tile p) {
   if (board[p.x+1][p.y+2].state == 0 && 1+p.x <= xmax && 2+p.y <= ymax) {
     board[p.x+1][p.y+2].state = 2;
   }
-  if (board[p.x+2][p.y+1].state == 0 && 2+p.x <= xmax && 1+p.y <= ymax) {
-    board[p.x+2][p.y+1].state = 2;
-  }
-  if (board[p.x-1][p.y-2].state == 0 && p.x-1 >= 0 && p.y-2 >= 0) {
-    board[p.x-1][p.y-2].state = 2;
-  }
-  if (board[p.x-2][p.y-1].state == 0 && p.x-2 >= 0 && p.y-1 >= 0) {
-    board[p.x-2][p.y-1].state = 2;
-  }
   if (board[p.x+1][p.y-2].state == 0 && 1+p.x <= xmax && p.y-2 >= 0) {
     board[p.x+1][p.y-2].state = 2;
+  }
+  if (board[p.x+2][p.y+1].state == 0 && 2+p.x <= xmax && 1+p.y <= ymax) {
+    board[p.x+2][p.y+1].state = 2;
   }
   if (board[p.x+2][p.y-1].state == 0 && 2+p.x <= xmax && p.y-1 >= 0) {
     board[p.x+2][p.y-1].state = 2;
   }
+  if (board[p.x-1][p.y-2].state == 0 && p.x-1 >= 0 && p.y-2 >= 0) {
+    board[p.x-1][p.y-2].state = 2;
+  }
   if (board[p.x-1][p.y+2].state == 0 && 2+p.y <= ymax && p.x-1 >= 0) {
     board[p.x-1][p.y+2].state = 2;
+  }
+  if (board[p.x-2][p.y-1].state == 0 && p.x-2 >= 0 && p.y-1 >= 0) {
+    board[p.x-2][p.y-1].state = 2;
   }
   if (board[p.x-2][p.y+1].state == 0 && 1+p.y <= ymax && p.x-2 >= 0) {
     board[p.x-2][p.y+1].state = 2;
@@ -394,9 +394,9 @@ void setup() {
   prevBoard[2][0].state = 1;
   prevBoard[2][0].piece = 'k';
   prevBoard[1][0].state = 1;
-  prevBoard[1][0].piece = 'p';
+  prevBoard[1][0].piece = 'q';
   board[1][0].state = 1;
-  board[1][0].piece = 'p';
+  board[1][0].piece = 'q';
   board[2][0].state = 1;
   board[2][0].piece = 'k';
 
@@ -433,33 +433,54 @@ void editBoard(int sensorVal, int idx){
   }
 }
 
-bool f = false;
+bool changeDetected = true;
 
 bool waitForPickup = true;
-bool waitForPlaceDown = false;
+//bool waitForPlaceDown = false;
 
 void loop() {
   // put your main code here, to run repeatedly:
+  if(changeDetected){
+    Serial.print("Previous Board: \n");
+    printBoard(prevBoard);
+    Serial.print("Current Board: \n");
+    printBoard(board);
+  }
+
+  for(int i = 0; i < 9; i++){ //constantly updating current board with sensor inputs
+    sensorRead(i);
+    int val = digitalRead(reader);
+    //writeLEDnum(i, val);
+    editBoard(val, i);
+    delay(1);
+  }
+  
   if (waitForPickup) {
-    Serial.println("Waiting for pickup");
-    delay(20);
-    for(int i = 0; i < 9; i++){
-      sensorRead(i);
-      int val = digitalRead(reader);
-      writeLEDnum(i, val);
-      editBoard(val, i);
-      delay(1);
+    if(changeDetected){
+      Serial.println("Waiting for pickup");
+      changeDetected = false;
     }
+//    for(int i = 0; i < 9; i++){
+//      sensorRead(i);
+//      int val = digitalRead(reader);
+//      //writeLEDnum(i, val);
+//      editBoard(val, i);
+//      delay(1);
+//    }
     //delay(20);
     pickedUpPiece = findPickedUpPiece(prevBoard, board);
     if (pickedUpPiece.state != -2) {
       copyBoard();
       waitForPickup = false;
-      waitForPlaceDown = true;
+      //waitForPlaceDown = true;
+      changeDetected = true;
     }
-  }
-  if (waitForPlaceDown) {
-    Serial.println("Waiting for place down");
+  } else {
+  //if (waitForPlaceDown) {
+    if(changeDetected){
+      Serial.println("Waiting for place down");
+      changeDetected = false;
+    }
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
         int num = (j * 3) + i;
@@ -471,20 +492,23 @@ void loop() {
         delay(1);
       }
     }
-    for(int i = 0; i < 9; i++){
-      sensorRead(i);
-      int val = digitalRead(reader);
-      //writeLEDnum(i, val);
-      editBoard(val, i);
-      delay(1);
-    }
+//    for(int i = 0; i < 9; i++){
+//      sensorRead(i);
+//      int val = digitalRead(reader);
+//      //writeLEDnum(i, val);
+//      editBoard(val, i);
+//      delay(1);
+//    }
     struct Tile p = findPlacedPiece(pickedUpPiece.piece, prevBoard, board);
     if (p.state == 1) {
+      copyBoard();
       waitForPickup = true;
-      waitForPlaceDown = false;
+      //waitForPlaceDown = false;
+      changeDetected = true;
     }
   }
-  //delay(20);
+  //delay(100);
+  
   /*delay(100);
     if (!f) {
       Serial.print("Previous Board: \n");
