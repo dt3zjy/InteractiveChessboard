@@ -363,6 +363,8 @@ void sensorRead(int num){
     digitalWrite(sr3, bitRead(num, 3));
 }
 
+struct Tile pickedUpPiece;
+
 void setup() {
   Serial.begin(9600);
   pinMode(s0, OUTPUT);
@@ -397,6 +399,8 @@ void setup() {
   board[1][0].piece = 'p';
   board[2][0].state = 1;
   board[2][0].piece = 'k';
+
+  pickedUpPiece.state = -2;
 }
 
 void copyBoard() {
@@ -431,14 +435,57 @@ void editBoard(int sensorVal, int idx){
 
 bool f = false;
 
+bool waitForPickup = true;
+bool waitForPlaceDown = false;
+
 void loop() {
   // put your main code here, to run repeatedly:
-  for(int i = 0; i < 9; i++){
-    sensorRead(i);
-    int val = digitalRead(reader);
-    editBoard(val, i);  
+  if (waitForPickup) {
+    Serial.println("Waiting for pickup");
+    delay(20);
+    for(int i = 0; i < 9; i++){
+      sensorRead(i);
+      int val = digitalRead(reader);
+      writeLEDnum(i, val);
+      editBoard(val, i);
+      delay(1);
+    }
+    //delay(20);
+    pickedUpPiece = findPickedUpPiece(prevBoard, board);
+    if (pickedUpPiece.state != -2) {
+      copyBoard();
+      waitForPickup = false;
+      waitForPlaceDown = true;
+    }
   }
-  delay(100);
+  if (waitForPlaceDown) {
+    Serial.println("Waiting for place down");
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        int num = (j * 3) + i;
+        if (prevBoard[j][i].state == 2) {
+          writeLEDnum(num, HIGH);
+        } else {
+          writeLEDnum(num, LOW);
+        }
+        delay(1);
+      }
+    }
+    for(int i = 0; i < 9; i++){
+      sensorRead(i);
+      int val = digitalRead(reader);
+      //writeLEDnum(i, val);
+      editBoard(val, i);
+      delay(1);
+    }
+    struct Tile p = findPlacedPiece(pickedUpPiece.piece, prevBoard, board);
+    if (p.state == 1) {
+      waitForPickup = true;
+      waitForPlaceDown = false;
+    }
+  }
+  //delay(20);
+  /*delay(100);
     if (!f) {
       Serial.print("Previous Board: \n");
       printBoard(prevBoard);
@@ -465,7 +512,7 @@ void loop() {
       }
       //board[1][0].state = 1;
       // board[2][2].state = 1;
-      //board[1][2].state = 1;*/
+      //board[1][2].state = 1;
 
       Serial.print("New Previous Board: \n");
       printBoard(prevBoard);
@@ -476,5 +523,5 @@ void loop() {
       struct Tile p = findPlacedPiece('k', prevBoard, board);
       
       //f = true;
-    }
+    }*/
 }
