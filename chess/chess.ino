@@ -391,14 +391,14 @@ void setup() {
   }
 
   // Testing pawn in center
-  prevBoard[2][0].state = 1;
-  prevBoard[2][0].piece = 'k';
-  prevBoard[1][0].state = 1;
-  prevBoard[1][0].piece = 'q';
-  board[1][0].state = 1;
-  board[1][0].piece = 'q';
-  board[2][0].state = 1;
-  board[2][0].piece = 'k';
+  prevBoard[2][2].state = 1;
+  prevBoard[2][2].piece = 'r';
+  prevBoard[1][1].state = 1;
+  prevBoard[1][1].piece = 'q';
+  board[1][1].state = 1;
+  board[1][1].piece = 'q';
+  board[2][2].state = 1;
+  board[2][2].piece = 'r';
 
   pickedUpPiece.state = -2;
 }
@@ -505,6 +505,8 @@ void loop() {
       waitForPickup = true;
       //waitForPlaceDown = false;
       changeDetected = true;
+      writeLEDnum(9, LOW);
+      delay(500);
     }
   }
   //delay(100);
