@@ -167,30 +167,30 @@ void checkKnight(struct Tile p) {
       Serial.print(p.x);
       Serial.print(" Y: ");
       Serial.println(p.y);
-  int xmax = 2- p.x;
-  int ymax = 2- p.y;
-  if (board[p.x+1][p.y+2].state == 0 && 1+p.x <= xmax && 2+p.y <= ymax) {
+  //int xmax = 2- p.x;
+  //int ymax = 2- p.y;
+  if (board[p.x+1][p.y+2].state == 0 && 1+p.x <= 2 && 2+p.y <= 2) {
     board[p.x+1][p.y+2].state = 2;
   }
-  if (board[p.x+1][p.y-2].state == 0 && 1+p.x <= xmax && p.y-2 >= 0) {
+  if (board[p.x+1][p.y-2].state == 0 && 1+p.x <= 2 && p.y-2 >= 0) {
     board[p.x+1][p.y-2].state = 2;
   }
-  if (board[p.x+2][p.y+1].state == 0 && 2+p.x <= xmax && 1+p.y <= ymax) {
+  if (board[p.x+2][p.y+1].state == 0 && 2+p.x <= 2 && 1+p.y <= 2) {
     board[p.x+2][p.y+1].state = 2;
   }
-  if (board[p.x+2][p.y-1].state == 0 && 2+p.x <= xmax && p.y-1 >= 0) {
+  if (board[p.x+2][p.y-1].state == 0 && 2+p.x <= 2 && p.y-1 >= 0) {
     board[p.x+2][p.y-1].state = 2;
   }
   if (board[p.x-1][p.y-2].state == 0 && p.x-1 >= 0 && p.y-2 >= 0) {
     board[p.x-1][p.y-2].state = 2;
   }
-  if (board[p.x-1][p.y+2].state == 0 && 2+p.y <= ymax && p.x-1 >= 0) {
+  if (board[p.x-1][p.y+2].state == 0 && 2+p.y <= 2 && p.x-1 >= 0) {
     board[p.x-1][p.y+2].state = 2;
   }
   if (board[p.x-2][p.y-1].state == 0 && p.x-2 >= 0 && p.y-1 >= 0) {
     board[p.x-2][p.y-1].state = 2;
   }
-  if (board[p.x-2][p.y+1].state == 0 && 1+p.y <= ymax && p.x-2 >= 0) {
+  if (board[p.x-2][p.y+1].state == 0 && 1+p.y <= 2 && p.x-2 >= 0) {
     board[p.x-2][p.y+1].state = 2;
   }
   board[p.x][p.y].state = -1;
